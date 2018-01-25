@@ -3757,8 +3757,8 @@ zum Beispiel: alertnotify=echo %%s | mail -s \"HTK Alert\" admin@foo.com</transl
         <translation>Erlaubte Gegenstellen können nicht wegen DoS ausgeschlossen werden und ihre Transaktionen werden immer weitergeleitet, sogar wenn sie schon im Memory-Pool sind. Dies ist z.B. für Gateways nützlich.</translation>
     </message>
     <message>
-        <source>(59200 could be used only on mainnet)</source>
-        <translation>(59200 kann nur im Standardnetz benutzt werden)</translation>
+        <source>(59100 could be used only on mainnet)</source>
+        <translation>(59100 kann nur im Standardnetz benutzt werden)</translation>
     </message>
     <message>
         <source>(default: %s)</source>
@@ -4176,8 +4176,8 @@ HTK Core wird heruntergefahren.</translation>
         <translation>Masternode-Geheimschlüssel (masternodeprivkey) ist ungültig. Siehe Dokumentation. </translation>
     </message>
     <message>
-        <source>(must be59200 for mainnet)</source>
-        <translation>(muss für Standardnetz59200 sein)</translation>
+        <source>(must be59100 for mainnet)</source>
+        <translation>(muss für Standardnetz59100 sein)</translation>
     </message>
     <message>
         <source>Can't find random Masternode.</source>

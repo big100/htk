@@ -135,7 +135,7 @@ public:
         pchMessageStart[1] = 0x04;
         pchMessageStart[2] = 0x15;
         pchMessageStart[3] = 0x14;
-        vAlertPubKey = ParseHex("04a06bd2fbe2a058241779cfbdc1f2943148a4dad94f5038e64e30d00f8481043d3592001eaa81133c0618033b1243e7856e147551cbce5c010a92f997bb9619cf");
+        vAlertPubKey = ParseHex("04a06bd2fbe2a058241779cfbdc1f2943148a4dad94f5038e64e30d00f8481043d3591001eaa81133c0618033b1243e7856e147551cbce5c010a92f997bb9619cf");
         nDefaultPort = 59100;
         bnProofOfWorkLimit = ~uint256(0) >> 20; // HTK starting difficulty is 1 / 2^12  //20
         nSubsidyHalvingInterval = 210000;
@@ -185,7 +185,7 @@ public:
 
         nPoolMaxTransactions = 3;
         strSporkKey = "0451da181f2aa16784748ef435c4ea704a029a4a8e1c1893eb7c6045b328a4f536105373bfb682305b3b733dc84e2f046e10bdaaabea052cc348552db9898b0c91";
-        strDarksendPoolDummyAddress = "";
+        strDarksendPoolDummyAddress = "QRV2dEKFfWWyQNv7RCjHUBF7KuxWuhqoYv";
         nStartMasternodePayments = 1510272000; //11/10/2017 @ 12:00am (UTC)
     }
 
