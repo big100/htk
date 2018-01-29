@@ -1618,23 +1618,22 @@ double ConvertBitsToDouble(unsigned int nBits)
     return dDiff;
 }
 
-int64_t GetBlockValue(int nHeight)
+int64_t GetBlockValue(int nPrevHeight)
 {
- 	if (nHeight == 0) return 61000 * COIN;
-		
-	int64_t nSubsidy;
+ 	if (nPrevHeight == 0) return 61000 * COIN;
 	
-	if(nHeight <= 5700 && nHeight > 0) {
+	int64_t nSubsidy = 0;
+	if(nPrevHeight <= 5700 && nPrevHeight > 0) {
         nSubsidy = 10 * COIN;
-	} else if (nHeight > 5701 && nHeight <= 131400) {
+	} else if (nPrevHeight > 5700 && nPrevHeight <= 131400) {
 		nSubsidy = 6 * COIN;
-	} else if (nHeight > 131401 && nHeight <= 262800) {
+	} else if (nPrevHeight > 131400 && nPrevHeight <= 262800) {
 		nSubsidy = 4 * COIN;
-	} else if (nHeight > 262801 && nHeight <= 525600) {
+	} else if (nPrevHeight > 262800 && nPrevHeight <= 525600) {
 		nSubsidy = 3 * COIN;
-	} else if (nHeight > 525601 && nHeight <= 1051200) {
+	} else if (nPrevHeight > 525600 && nPrevHeight <= 1051200) {
 		nSubsidy = 2 * COIN;
-	} else if (nHeight > 1051201) {
+	} else if (nPrevHeight > 1051200) {
 		nSubsidy = 1 * COIN;
 	}
     return nSubsidy;
@@ -1643,18 +1642,18 @@ int64_t GetBlockValue(int nHeight)
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCount)
 {
 	int64_t ret = 0;
-
-	if(nHeight <= 5700 && nHeight > 0) {
+	int nPrevHeight = nHeight - 1;
+	if(nPrevHeight <= 5700 && nPrevHeight > 0) {
         ret = blockValue * 10 / 100;
-	} else if (nHeight > 5701 && nHeight <= 131400) {
+	} else if (nPrevHeight > 5700 && nPrevHeight < 131400) {
 		ret = blockValue * 50 / 100;
-	} else if (nHeight > 131401 && nHeight <= 262800) {
+	} else if (nPrevHeight > 131400 && nPrevHeight < 262800) {
 		ret = blockValue * 60 / 100;
-	} else if (nHeight > 262801 && nHeight <= 525600) {
+	} else if (nPrevHeight > 262800 && nPrevHeight < 525600) {
 		ret = blockValue * 70 / 100;
-	} else if (nHeight > 525601 && nHeight <= 1051200) {
+	} else if (nPrevHeight > 525600 && nPrevHeight < 1051200) {
 		ret = blockValue * 80 / 100;
-	} else if (nHeight > 1051201) {
+	} else if (nPrevHeight > 1051200) {
 		ret = blockValue * 90 / 100;
 	}
 	return ret;

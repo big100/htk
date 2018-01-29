@@ -32,6 +32,12 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         return Params().ProofOfWorkLimit().GetCompact();
     }
 
+	if(pindexLast->nHeight == 5701) {
+        uint256 bnNew;
+		bnNew = ~uint256(0) >> 20;
+		return bnNew.GetCompact();
+	}
+
 	// Proof of Stake
     if (pindexLast->nHeight > Params().LAST_POW_BLOCK()) {
         uint256 bnTargetLimit = (~uint256(0) >> 20);

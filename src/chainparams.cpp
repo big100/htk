@@ -94,7 +94,9 @@ static void convertSeed6(std::vector<CAddress>& vSeedsOut, const SeedSpec6* data
 // + Contains no strange transactions
 
 static Checkpoints::MapCheckpoints mapCheckpoints =
-    boost::assign::map_list_of(0, uint256("0x0000088c0254d8db142adaa4c372ec10523d1f1a7ca2316bd9121524c63b3fb9"));
+    boost::assign::map_list_of
+		(0, uint256("0x0000088c0254d8db142adaa4c372ec10523d1f1a7ca2316bd9121524c63b3fb9"))
+		(5700, uint256("0x00000000000004b8454caab548128531a5e9d450ae9ddc278606dbeb72ac3e51"));
 static const Checkpoints::CCheckpointData data = {
     &mapCheckpoints,
     1493667067, // * UNIX timestamp of last checkpoint block
@@ -157,14 +159,14 @@ public:
         hashGenesisBlock = genesis.GetHash();
         assert(hashGenesisBlock == uint256("0x0000088c0254d8db142adaa4c372ec10523d1f1a7ca2316bd9121524c63b3fb9"));
         assert(genesis.hashMerkleRoot == uint256("0x21ffbb10d2f9115c1206e9c6f0cf7b2c7ceab5003ef815dd840b7f80a658e2ff"));
-
-        vSeeds.push_back(CDNSSeedData("208.167.248.209", "208.167.248.209"));
+		
+		vSeeds.push_back(CDNSSeedData("208.167.248.209", "208.167.248.209"));
         vSeeds.push_back(CDNSSeedData("199.247.0.216", "199.247.0.216"));
         vSeeds.push_back(CDNSSeedData("45.63.99.47", "45.63.99.47"));
         vSeeds.push_back(CDNSSeedData("45.76.33.34", "45.76.33.34"));
         vSeeds.push_back(CDNSSeedData("45.76.116.62", "45.76.116.62"));
-        
-        base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 58);
+		
+		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 58);
         base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 12);
         base58Prefixes[SECRET_KEY] = std::vector<unsigned char>(1, 182);
         base58Prefixes[EXT_PUBLIC_KEY] = boost::assign::list_of(0x04)(0x88)(0xB2)(0x1E).convert_to_container<std::vector<unsigned char> >();
