@@ -3757,8 +3757,8 @@ napríklad: alertnotify=echo %%s | mail -s "HTK Upozornenie" admin@foo.com
         <translation>Uzle na zoznam povolených nemôžu byť DoS zakázané a ich transakcie vždy postúpené ďalej, aj v prípade, ak sú už pamäťovej fronte. Užitočné napr. pre brány</translation>
     </message>
     <message>
-        <source>(59100 could be used only on mainnet)</source>
-        <translation>(59100 nemôže byť použité pre hlavnú sieť)</translation>
+        <source>(58100 could be used only on mainnet)</source>
+        <translation>(58100 nemôže byť použité pre hlavnú sieť)</translation>
     </message>
     <message>
         <source>(default: %s)</source>
@@ -4175,7 +4175,7 @@ napríklad: alertnotify=echo %%s | mail -s "HTK Upozornenie" admin@foo.com
         <translation>Neplatný masternodeprivkey. Prosím pozrite do dokumentácie.</translation>
     </message>
     <message>
-        <source>(must be59100 for mainnet)</source>
+        <source>(must be58100 for mainnet)</source>
         <translation>(pre hlavnú sieť musí byť 9999)</translation>
     </message>
     <message>

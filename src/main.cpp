@@ -1618,22 +1618,30 @@ double ConvertBitsToDouble(unsigned int nBits)
     return dDiff;
 }
 
-int64_t GetBlockValue(int nPrevHeight)
+int64_t GetBlockValue(int nHeight)
 {
- 	if (nPrevHeight == 0) return 61000 * COIN;
+ 	if (nHeight == 0) return 61000 * COIN;
 	
 	int64_t nSubsidy = 0;
-	if(nPrevHeight <= 5700 && nPrevHeight > 0) {
+	if(nHeight <= 5700 && nHeight > 0) {
         nSubsidy = 10 * COIN;
-	} else if (nPrevHeight > 5700 && nPrevHeight <= 131400) {
+	} else if (nHeight > 5700 && nHeight <= 6099) {
 		nSubsidy = 6 * COIN;
-	} else if (nPrevHeight > 131400 && nPrevHeight <= 262800) {
+	} else if (nHeight > 6099 && nHeight <= 6100) {
+		nSubsidy = 12150 * COIN; // compensate to 54 MN owners each 225 HTK(reward for stop time)
+	} else if (nHeight > 6100 && nHeight <= 6130) {
+		nSubsidy = 1 * COIN; // fair block
+	} else if (nHeight > 6130 && nHeight <= 6250) {
+		nSubsidy = 10 * COIN;
+	} else if (nHeight > 6250 && nHeight <= 131400) {
+		nSubsidy = 6 * COIN;
+	} else if (nHeight > 131400 && nHeight <= 262800) {
 		nSubsidy = 4 * COIN;
-	} else if (nPrevHeight > 262800 && nPrevHeight <= 525600) {
+	} else if (nHeight > 262800 && nHeight <= 525600) {
 		nSubsidy = 3 * COIN;
-	} else if (nPrevHeight > 525600 && nPrevHeight <= 1051200) {
+	} else if (nHeight > 525600 && nHeight <= 1051200) {
 		nSubsidy = 2 * COIN;
-	} else if (nPrevHeight > 1051200) {
+	} else if (nHeight > 1051200) {
 		nSubsidy = 1 * COIN;
 	}
     return nSubsidy;
@@ -1642,18 +1650,25 @@ int64_t GetBlockValue(int nPrevHeight)
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue, int nMasternodeCount)
 {
 	int64_t ret = 0;
-	int nPrevHeight = nHeight - 1;
-	if(nPrevHeight <= 5700 && nPrevHeight > 0) {
+	if(nHeight <= 5700 && nHeight > 0) {
         ret = blockValue * 10 / 100;
-	} else if (nPrevHeight > 5700 && nPrevHeight < 131400) {
+	} else if (nHeight > 5700 && nHeight <= 6099) {
 		ret = blockValue * 50 / 100;
-	} else if (nPrevHeight > 131400 && nPrevHeight < 262800) {
+	} else if (nHeight > 6099 && nHeight <= 6100) {
+		ret = 0;
+	} else if (nHeight > 6100 && nHeight <= 6130) {
+		ret = blockValue * 10 / 100;
+	} else if (nHeight > 6130 && nHeight <= 6250) {
+		ret = blockValue * 10 / 100;
+	} else if (nHeight > 6250 && nHeight <= 131400) {
+		ret = blockValue * 50 / 100;
+	} else if (nHeight > 131400 && nHeight <= 262800) {
 		ret = blockValue * 60 / 100;
-	} else if (nPrevHeight > 262800 && nPrevHeight < 525600) {
+	} else if (nHeight > 262800 && nHeight <= 525600) {
 		ret = blockValue * 70 / 100;
-	} else if (nPrevHeight > 525600 && nPrevHeight < 1051200) {
+	} else if (nHeight > 525600 && nHeight <= 1051200) {
 		ret = blockValue * 80 / 100;
-	} else if (nPrevHeight > 1051200) {
+	} else if (nHeight > 1051200) {
 		ret = blockValue * 90 / 100;
 	}
 	return ret;
@@ -2189,11 +2204,11 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     pindex->nMint = nValueOut - nValueIn + nFees;
     pindex->nMoneySupply = nMoneySupplyPrev + nValueOut - nValueIn;
 
-    CAmount nExpectedMint = GetBlockValue(pindex->pprev->nHeight);
-    if (pindex->pprev->nHeight > 4200 && !IsBlockValueValid(block, nExpectedMint, pindex->nMint)) {
+	CAmount nExpectedMint = GetBlockValue(pindex->nHeight);
+    if (!IsBlockValueValid(block, nExpectedMint, pindex->nMint)) {
         return state.DoS(100,
-            error("ConnectBlock() : reward pays too much (actual=%s vs limit=%s)",
-                FormatMoney(pindex->nMint), FormatMoney(nExpectedMint)),
+            error("ConnectBlock() : reward pays too much (actual=%s vs limit=%s) %d %d",
+                FormatMoney(pindex->nMint), FormatMoney(nExpectedMint), GetBlockValue(pindex->nHeight), pindex->nHeight),
             REJECT_INVALID, "bad-cb-amount");
     }
 
@@ -5382,26 +5397,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 //       it was the one which was commented out
 int ActiveProtocol()
 {
-
-    // SPORK_14 was used for 70710. Leave it 'ON' so they don't see < 70710 nodes. They won't react to SPORK_15
-    // messages because it's not in their code
-/*
-    if (IsSporkActive(SPORK_14_NEW_PROTOCOL_ENFORCEMENT)) {
-        if (chainActive.Tip()->nHeight >= Params().ModifierUpgradeBlock())
-            return MIN_PEER_PROTO_VERSION_AFTER_ENFORCEMENT;
-    }
-
-    return MIN_PEER_PROTO_VERSION_BEFORE_ENFORCEMENT;
-*/
-
-
-    // SPORK_15 is used for 70910. Nodes < 70910 don't see it and still get their protocol version via SPORK_14 and their 
-    // own ModifierUpgradeBlock()
- 
-    if (IsSporkActive(SPORK_15_NEW_PROTOCOL_ENFORCEMENT_2))
-            return MIN_PEER_PROTO_VERSION_AFTER_ENFORCEMENT;
-
-    return MIN_PEER_PROTO_VERSION_BEFORE_ENFORCEMENT;
+	return MIN_PEER_PROTO_VERSION_ENFORCEMENT;
 }
 
 // requires LOCK(cs_vRecvMsg)

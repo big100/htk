@@ -26,5 +26,5 @@ Our coin have three parts that are wallet, sdk and simple messenger.
 * 5% - Bounty and Marketing
 
 - Ports
-* rpcport : 59200
-* p2pport : 59100
+* rpcport : 58200
+* p2pport : 58100

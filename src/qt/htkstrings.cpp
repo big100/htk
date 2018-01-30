@@ -205,10 +205,10 @@ static const char UNUSED* htk_strings[] = {
     QT_TRANSLATE_NOOP("htk-core", ""
                                    "You must specify a masternodeprivkey in the configuration. Please see "
                                    "documentation for help."),
-    QT_TRANSLATE_NOOP("htk-core", "(59100 could be used only on mainnet)"),
+    QT_TRANSLATE_NOOP("htk-core", "(58100 could be used only on mainnet)"),
     QT_TRANSLATE_NOOP("htk-core", "(default: %s)"),
     QT_TRANSLATE_NOOP("htk-core", "(default: 1)"),
-    QT_TRANSLATE_NOOP("htk-core", "(must be 59100 for mainnet)"),
+    QT_TRANSLATE_NOOP("htk-core", "(must be 58100 for mainnet)"),
     QT_TRANSLATE_NOOP("htk-core", "<category> can be:\n"),
     QT_TRANSLATE_NOOP("htk-core", "Accept command line and JSON-RPC commands"),
     QT_TRANSLATE_NOOP("htk-core", "Accept connections from outside (default: 1 if no -proxy or -connect)"),

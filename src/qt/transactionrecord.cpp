@@ -99,33 +99,52 @@ QList<TransactionRecord> TransactionRecord::decomposeTransaction(const CWallet* 
 				int nHeight = chainActive.Height();
 				int64_t nSubsidy;
 
-				int nPrevHeight = nHeight - 1;
-				if(nPrevHeight <= 5700 && nPrevHeight > 0) {
+				if(nHeight <= 5700 && nHeight > 0) {
 					nSubsidy = 10 * COIN;
 					if(nSubsidy * 10 / 100 == txout.nValue) {
 						sub.type = TransactionRecord::MNReward;
 					}
-				} else if (nPrevHeight > 5700 && nPrevHeight <= 131400) {
+				} else if (nHeight > 5700 && nHeight <= 6099) {
 					nSubsidy = 6 * COIN;
 					if(nSubsidy * 50 / 100 == txout.nValue) {
 						sub.type = TransactionRecord::MNReward;
 					}
-				} else if (nPrevHeight > 131400 && nPrevHeight <= 262800) {
+				} else if (nHeight > 6099 && nHeight <= 6100) {
+					nSubsidy = 12150 * COIN;
+					if(nSubsidy * 0 / 100 == txout.nValue) {
+						sub.type = TransactionRecord::MNReward;
+					}
+				} else if (nHeight > 6100 && nHeight <= 6130) {
+					nSubsidy = 1 * COIN;
+					if(nSubsidy * 10 / 100 == txout.nValue) {
+						sub.type = TransactionRecord::MNReward;
+					}
+				} else if (nHeight > 6130 && nHeight <= 6250) {
+					nSubsidy = 10 * COIN;
+					if(nSubsidy * 10 / 100 == txout.nValue) {
+						sub.type = TransactionRecord::MNReward;
+					}
+				} else if (nHeight > 6250 && nHeight <= 131400) {
+					nSubsidy = 6 * COIN;
+					if(nSubsidy * 50 / 100 == txout.nValue) {
+						sub.type = TransactionRecord::MNReward;
+					}
+				} else if (nHeight > 131400 && nHeight <= 262800) {
 					nSubsidy = 4 * COIN;
 					if(nSubsidy * 60 / 100 == txout.nValue) {
 						sub.type = TransactionRecord::MNReward;
 					}
-				} else if (nPrevHeight > 262800 && nPrevHeight <= 525600) {
+				} else if (nHeight > 262800 && nHeight <= 525600) {
 					nSubsidy = 3 * COIN;
 					if(nSubsidy * 70 / 100 == txout.nValue) {
 						sub.type = TransactionRecord::MNReward;
 					}
-				} else if (nPrevHeight > 525600 && nPrevHeight <= 1051200) {
+				} else if (nHeight > 525600 && nHeight <= 1051200) {
 					nSubsidy = 2 * COIN;
 					if(nSubsidy * 80 / 100 == txout.nValue) {
 						sub.type = TransactionRecord::MNReward;
 					}
-				} else if (nPrevHeight > 1051200) {
+				} else if (nHeight > 1051200) {
 					nSubsidy = 1 * COIN;
 					if(nSubsidy * 90 / 100 == txout.nValue) {
 						sub.type = TransactionRecord::MNReward;

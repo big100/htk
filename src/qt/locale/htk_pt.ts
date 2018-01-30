@@ -3654,8 +3654,8 @@ https://www.transifex.com/htk-crypto/htk-wallet-translations/</translation>
         <translation>Aviso: Por favor verifique que a data e a hora do computador está correcta! Se o relógio estiver errado o HTK Core não vai funcionar correctamente.</translation>
     </message>
     <message>
-        <source>(59100 could be used only on mainnet)</source>
-        <translation>(59100 apenas pode ser usado para mainnet)</translation>
+        <source>(58100 could be used only on mainnet)</source>
+        <translation>(58100 apenas pode ser usado para mainnet)</translation>
     </message>
     <message>
         <source>(default: %s)</source>
@@ -4064,8 +4064,8 @@ https://www.transifex.com/htk-crypto/htk-wallet-translations/</translation>
         <translation>masternodeprivkey inválida. Por favor reveja a documentação.</translation>
     </message>
     <message>
-        <source>(must be59100 for mainnet)</source>
-        <translation>(deve ser59100 para mainnet)</translation>
+        <source>(must be58100 for mainnet)</source>
+        <translation>(deve ser58100 para mainnet)</translation>
     </message>
     <message>
         <source>Can't find random Masternode.</source>

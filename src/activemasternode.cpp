@@ -65,13 +65,13 @@ void CActiveMasternode::ManageStatus()
         }
 
         if (Params().NetworkID() == CBaseChainParams::MAIN) {
-            if (service.GetPort() != 59100) {
-                notCapableReason = strprintf("Invalid port: %u - only 59100 is supported on mainnet.", service.GetPort());
+            if (service.GetPort() != 58100) {
+                notCapableReason = strprintf("Invalid port: %u - only 58100 is supported on mainnet.", service.GetPort());
                 LogPrintf("CActiveMasternode::ManageStatus() - not capable: %s\n", notCapableReason);
                 return;
             }
-        } else if (service.GetPort() == 59100) {
-            notCapableReason = strprintf("Invalid port: %u - 59100 is only supported on mainnet.", service.GetPort());
+        } else if (service.GetPort() == 58100) {
+            notCapableReason = strprintf("Invalid port: %u - 58100 is only supported on mainnet.", service.GetPort());
             LogPrintf("CActiveMasternode::ManageStatus() - not capable: %s\n", notCapableReason);
             return;
         }
@@ -193,38 +193,6 @@ bool CActiveMasternode::SendMasternodePing(std::string& errorMessage)
 
         mnp.Relay();
 
-        /*
-         * IT'S SAFE TO REMOVE THIS IN FURTHER VERSIONS
-         * AFTER MIGRATION TO V12 IS DONE
-         */
-
-        if (IsSporkActive(SPORK_10_MASTERNODE_PAY_UPDATED_NODES)) return true;
-        // for migration purposes ping our node on old masternodes network too
-        std::string retErrorMessage;
-        std::vector<unsigned char> vchMasterNodeSignature;
-        int64_t masterNodeSignatureTime = GetAdjustedTime();
-
-        std::string strMessage = service.ToString() + boost::lexical_cast<std::string>(masterNodeSignatureTime) + boost::lexical_cast<std::string>(false);
-
-        if (!DarKsendSigner.SignMessage(strMessage, retErrorMessage, vchMasterNodeSignature, keyMasternode)) {
-            errorMessage = "dseep sign message failed: " + retErrorMessage;
-            return false;
-        }
-
-        if (!DarKsendSigner.VerifyMessage(pubKeyMasternode, vchMasterNodeSignature, strMessage, retErrorMessage)) {
-            errorMessage = "dseep verify message failed: " + retErrorMessage;
-            return false;
-        }
-
-        LogPrint("masternode", "dseep - relaying from active mn, %s \n", vin.ToString().c_str());
-        LOCK(cs_vNodes);
-        BOOST_FOREACH (CNode* pnode, vNodes)
-            pnode->PushMessage("dseep", vin, vchMasterNodeSignature, masterNodeSignatureTime, false);
-
-        /*
-         * END OF "REMOVE"
-         */
-
         return true;
     } else {
         // Seems like we are trying to send a ping while the Masternode is not registered in the network
@@ -264,13 +232,13 @@ bool CActiveMasternode::Register(std::string strService, std::string strKeyMaste
 
     CService service = CService(strService);
     if (Params().NetworkID() == CBaseChainParams::MAIN) {
-        if (service.GetPort() != 59100) {
-            errorMessage = strprintf("Invalid port %u for masternode %s - only 59100 is supported on mainnet.", service.GetPort(), strService);
+        if (service.GetPort() != 58100) {
+            errorMessage = strprintf("Invalid port %u for masternode %s - only 58100 is supported on mainnet.", service.GetPort(), strService);
             LogPrintf("CActiveMasternode::Register() - %s\n", errorMessage);
             return false;
         }
-    } else if (service.GetPort() == 59100) {
-        errorMessage = strprintf("Invalid port %u for masternode %s - 59100 is only supported on mainnet.", service.GetPort(), strService);
+    } else if (service.GetPort() == 58100) {
+        errorMessage = strprintf("Invalid port %u for masternode %s - 58100 is only supported on mainnet.", service.GetPort(), strService);
         LogPrintf("CActiveMasternode::Register() - %s\n", errorMessage);
         return false;
     }
@@ -313,44 +281,6 @@ bool CActiveMasternode::Register(CTxIn vin, CService service, CKey keyCollateral
     //send to all peers
     LogPrintf("CActiveMasternode::Register() - RelayElectionEntry vin = %s\n", vin.ToString());
     mnb.Relay();
-
-    /*
-     * IT'S SAFE TO REMOVE THIS IN FURTHER VERSIONS
-     * AFTER MIGRATION TO V12 IS DONE
-     */
-
-    if (IsSporkActive(SPORK_10_MASTERNODE_PAY_UPDATED_NODES)) return true;
-    // for migration purposes inject our node in old masternodes' list too
-    std::string retErrorMessage;
-    std::vector<unsigned char> vchMasterNodeSignature;
-    int64_t masterNodeSignatureTime = GetAdjustedTime();
-    std::string donationAddress = "";
-    int donationPercantage = 0;
-
-    std::string vchPubKey(pubKeyCollateralAddress.begin(), pubKeyCollateralAddress.end());
-    std::string vchPubKey2(pubKeyMasternode.begin(), pubKeyMasternode.end());
-
-    std::string strMessage = service.ToString() + boost::lexical_cast<std::string>(masterNodeSignatureTime) + vchPubKey + vchPubKey2 + boost::lexical_cast<std::string>(PROTOCOL_VERSION) + donationAddress + boost::lexical_cast<std::string>(donationPercantage);
-
-    if (!DarKsendSigner.SignMessage(strMessage, retErrorMessage, vchMasterNodeSignature, keyCollateralAddress)) {
-        errorMessage = "dsee sign message failed: " + retErrorMessage;
-        LogPrintf("CActiveMasternode::Register() - Error: %s\n", errorMessage.c_str());
-        return false;
-    }
-
-    if (!DarKsendSigner.VerifyMessage(pubKeyCollateralAddress, vchMasterNodeSignature, strMessage, retErrorMessage)) {
-        errorMessage = "dsee verify message failed: " + retErrorMessage;
-        LogPrintf("CActiveMasternode::Register() - Error: %s\n", errorMessage.c_str());
-        return false;
-    }
-
-    LOCK(cs_vNodes);
-    BOOST_FOREACH (CNode* pnode, vNodes)
-        pnode->PushMessage("dsee", vin, service, vchMasterNodeSignature, masterNodeSignatureTime, pubKeyCollateralAddress, pubKeyMasternode, -1, -1, masterNodeSignatureTime, PROTOCOL_VERSION, donationAddress, donationPercantage);
-
-    /*
-     * END OF "REMOVE"
-     */
 
     return true;
 }

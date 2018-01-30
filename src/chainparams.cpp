@@ -98,7 +98,8 @@ static Checkpoints::MapCheckpoints mapCheckpoints =
 		(0, uint256("0x0000088c0254d8db142adaa4c372ec10523d1f1a7ca2316bd9121524c63b3fb9"))
 		(5700, uint256("0x00000000000004b8454caab548128531a5e9d450ae9ddc278606dbeb72ac3e51"))
 		(6084, uint256("0x0000000000004ce25cb6fd26f12a177205d2682c8a0cac468419c5f66b23a9c8"))
-		(6085, uint256("0x00000da1ff23a4d5fd5cc372f0d05fda22ef1b93d024072124383752eba86278"));
+		(6085, uint256("0x00000da1ff23a4d5fd5cc372f0d05fda22ef1b93d024072124383752eba86278"))
+		;
 static const Checkpoints::CCheckpointData data = {
     &mapCheckpoints,
     1493667067, // * UNIX timestamp of last checkpoint block
@@ -139,9 +140,10 @@ public:
         pchMessageStart[1] = 0x04;
         pchMessageStart[2] = 0x15;
         pchMessageStart[3] = 0x14;
-        vAlertPubKey = ParseHex("04a06bd2fbe2a058241779cfbdc1f2943148a4dad94f5038e64e30d00f8481043d3591001eaa81133c0618033b1243e7856e147551cbce5c010a92f997bb9619cf");
-        nDefaultPort = 59100;
+        vAlertPubKey = ParseHex("04a06bd2fbe2a058241779cfbdc1f2943148a4dad94f5038e64e30d00f8481043d3582001eaa81133c0618033b1243e7856e147551cbce5c010a92f997bb9619cf");
+        nDefaultPort = 58100;
         bnProofOfWorkLimit = ~uint256(0) >> 20; // HTK starting difficulty is 1 / 2^12  //20
+		
         nSubsidyHalvingInterval = 210000;
         nMaxReorganizationDepth = 100;
         nEnforceBlockUpgradeMajority = 750;

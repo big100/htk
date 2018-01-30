@@ -79,8 +79,6 @@ CMasternode::CMasternode()
     nScanningErrorCount = 0;
     nLastScanningErrorBlockHeight = 0;
     lastTimeChecked = 0;
-    nLastDsee = 0;  // temporary, do not save. Remove after migration to v12
-    nLastDseep = 0; // temporary, do not save. Remove after migration to v12
 }
 
 CMasternode::CMasternode(const CMasternode& other)
@@ -104,8 +102,6 @@ CMasternode::CMasternode(const CMasternode& other)
     nScanningErrorCount = other.nScanningErrorCount;
     nLastScanningErrorBlockHeight = other.nLastScanningErrorBlockHeight;
     lastTimeChecked = 0;
-    nLastDsee = other.nLastDsee;   // temporary, do not save. Remove after migration to v12
-    nLastDseep = other.nLastDseep; // temporary, do not save. Remove after migration to v12
 }
 
 CMasternode::CMasternode(const CMasternodeBroadcast& mnb)
@@ -129,8 +125,6 @@ CMasternode::CMasternode(const CMasternodeBroadcast& mnb)
     nScanningErrorCount = 0;
     nLastScanningErrorBlockHeight = 0;
     lastTimeChecked = 0;
-    nLastDsee = 0;  // temporary, do not save. Remove after migration to v12
-    nLastDseep = 0; // temporary, do not save. Remove after migration to v12
 }
 
 //
@@ -517,8 +511,8 @@ bool CMasternodeBroadcast::CheckAndUpdate(int& nDos)
     }
 
     if (Params().NetworkID() == CBaseChainParams::MAIN) {
-        if (addr.GetPort() != 59100) return false;
-    } else if (addr.GetPort() == 59100)
+        if (addr.GetPort() != 58100) return false;
+    } else if (addr.GetPort() == 58100)
         return false;
 
     //search existing Masternode list, this is where we update existing Masternodes with new mnb broadcasts

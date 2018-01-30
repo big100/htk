@@ -222,11 +222,7 @@ bool IsBlockPayeeValid(const CBlock& block, int nBlockHeight)
         return true;
     LogPrintf("Invalid mn payment detected %s\n", txNew.ToString().c_str());
 
-    if (IsSporkActive(SPORK_8_MASTERNODE_PAYMENT_ENFORCEMENT))
-        return false;
-    LogPrintf("Masternode payment enforcement is disabled, accepting block\n");
-
-    return true;
+    return false;
 }
 
 
@@ -301,10 +297,7 @@ void CMasternodePayments::FillBlockPayee(CMutableTransaction& txNew, int64_t nFe
 
 int CMasternodePayments::GetMinMasternodePaymentsProto()
 {    
-    if (IsSporkActive(SPORK_10_MASTERNODE_PAY_UPDATED_NODES))
-        return ActiveProtocol();                          // Allow only updated peers
-    else
-        return MIN_PEER_PROTO_VERSION_BEFORE_ENFORCEMENT; // Also allow old peers as long as they are allowed to run
+    return ActiveProtocol();
 }
 
 void CMasternodePayments::ProcessMessageMasternodePayments(CNode* pfrom, std::string& strCommand, CDataStream& vRecv)
