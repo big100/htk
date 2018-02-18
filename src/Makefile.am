@@ -245,6 +245,7 @@ libbitcoin_wallet_a_SOURCES = \
   masternodeman.cpp \
   rpcdump.cpp \
   rpcwallet.cpp \
+  rpcmessage.cpp \
   kernel.cpp \
   wallet.cpp \
   wallet_ismine.cpp \

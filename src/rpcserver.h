@@ -247,6 +247,10 @@ extern json_spirit::Value mnbudgetvoteraw(const json_spirit::Array& params, bool
 extern json_spirit::Value mnfinalbudget(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value mnsync(const json_spirit::Array& params, bool fHelp);
 
+extern json_spirit::Value sendmessagefrom(const json_spirit::Array& params, bool fHelp); // in rpcmessage.cpp
+extern json_spirit::Value sendmessage(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value listmessages(const json_spirit::Array& params, bool fHelp);
+
 // in rest.cpp
 extern bool HTTPReq_REST(AcceptedConnection* conn,
     std::string& strURI,

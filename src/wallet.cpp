@@ -1012,33 +1012,37 @@ void CWalletTx::GetAmounts(list<COutputEntry>& listReceived,
     for (unsigned int i = 0; i < vout.size(); ++i) {
         const CTxOut& txout = vout[i];
         isminetype fIsMine = pwallet->IsMine(txout);
-        // Only need to handle txouts if AT LEAST one of these is true:
+		// Only need to handle txouts if AT LEAST one of these is true:
         //   1) they debit from us (sent)
         //   2) the output is to us (received)
-        if (nDebit > 0) {
+		if (nDebit > 0) {
             // Don't report 'change' txouts
-            if (pwallet->IsChange(txout))
+            if (pwallet->IsChange(txout)) {
                 continue;
-        } else if (!(fIsMine & filter))
+			}
+        } else if (!(fIsMine & filter)) {
             continue;
+		}
 
         // In either case, we need to get the destination address
-        CTxDestination address;
-        if (!ExtractDestination(txout.scriptPubKey, address)) {
-            LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s\n",
-                this->GetHash().ToString());
-            address = CNoDestination();
-        }
+		CTxDestination address;
+		if (!ExtractDestination(txout.scriptPubKey, address)) {
+			LogPrintf("CWalletTx::GetAmounts: Unknown transaction type found, txid %s\n",
+				this->GetHash().ToString());
+			address = CNoDestination();
+		}
 
         COutputEntry output = {address, txout.nValue, (int)i};
 
         // If we are debited by the transaction, add the output as a "sent" entry
-        if (nDebit > 0)
+        if (nDebit > 0) {
             listSent.push_back(output);
+		}
 
         // If we are receiving the output, add it as a "received" entry
-        if (fIsMine & filter)
+        if (fIsMine & filter) {
             listReceived.push_back(output);
+		}
     }
 }
 
@@ -3640,4 +3644,115 @@ bool CMerkleTx::IsTransactionLockTimedOut() const
     }
 
     return false;
+}
+
+bool CWallet::CreateMessageTransaction(CWalletTx& wtxFrom,
+	const CAmount& nMessageFee,
+	const vector<pair<CScript, CAmount> >& vecSend,
+    CWalletTx& wtxNew,
+    CReserveKey& reservekey,
+    CAmount& nFeeRet,
+    std::string& strFailReason,
+    CAmount nFeePay)
+{
+    CAmount nValue = 0;
+
+    BOOST_FOREACH (const PAIRTYPE(CScript, CAmount) & s, vecSend) {
+        if (nValue < 0) {
+            strFailReason = _("Transaction amounts must be positive");
+            return false;
+        }
+        nValue += s.second;
+    }
+    if (vecSend.empty() || nValue < 0) {
+        strFailReason = _("Transaction amounts must be positive");
+        return false;
+    }
+
+    wtxNew.fTimeReceivedIsTxTime = true;
+    wtxNew.BindWallet(this);
+    CMutableTransaction txNew;
+
+    {
+        LOCK2(cs_main, cs_wallet);
+        {
+            nFeeRet = 0;
+            if (nFeePay > 0) nFeeRet = nFeePay;
+            while (true) {
+                txNew.vin.clear();
+                txNew.vout.clear();
+                wtxNew.fFromMe = true;
+
+                CAmount nTotalValue = nValue + nFeeRet;
+                double dPriority = 0;
+
+                // vouts to the payees
+				BOOST_FOREACH (const PAIRTYPE(CScript, CAmount) & s, vecSend) {
+					CTxOut txout(s.second, s.first);
+					txNew.vout.push_back(txout);
+				}
+                reservekey.ReturnKey();
+
+                // Fill vin
+				for(int i=0; i<wtxFrom.vout.size(); i++) {
+					if(wtxFrom.vout[i].nValue == nMessageFee) {
+						CTxIn vin(wtxFrom.GetHash(), i);
+		                txNew.vin.push_back(vin);
+					}
+				}
+				if(txNew.vin.size() == 0) {
+					strFailReason = _("Invalid message vin");
+					return false;
+				}
+				
+                // Sign
+                int nIn = 0;
+				if (!SignSignature(*this, wtxFrom, txNew, nIn++)) {
+					strFailReason = _("Signing transaction failed");
+					return false;
+				}
+
+                // Embed the constructed transaction data in wtxNew.
+                *static_cast<CTransaction*>(&wtxNew) = CTransaction(txNew);
+
+                // Limit size
+                unsigned int nBytes = ::GetSerializeSize(*(CTransaction*)&wtxNew, SER_NETWORK, PROTOCOL_VERSION);
+                if (nBytes >= MAX_STANDARD_TX_SIZE) {
+                    strFailReason = _("Transaction too large");
+                    return false;
+                }
+                dPriority = wtxNew.ComputePriority(dPriority, nBytes);
+
+                // Can we complete this as a free transaction?
+                if (fSendFreeTransactions && nBytes <= MAX_FREE_TRANSACTION_CREATE_SIZE) {
+                    // Not enough fee: enough priority?
+                    double dPriorityNeeded = mempool.estimatePriority(nTxConfirmTarget);
+                    // Not enough mempool history to estimate: use hard-coded AllowFree.
+                    if (dPriorityNeeded <= 0 && AllowFree(dPriority))
+                        break;
+
+                    // Small enough, and priority high enough, to send for free
+                    if (dPriorityNeeded > 0 && dPriority >= dPriorityNeeded)
+                        break;
+                }
+
+                CAmount nFeeNeeded = max(nFeePay, GetMinimumFee(nBytes, nTxConfirmTarget, mempool));
+
+                // If we made it here and we aren't even able to meet the relay fee on the next pass, give up
+                // because we must be at the maximum allowed fee.
+                if (nFeeNeeded < ::minRelayTxFee.GetFee(nBytes)) {
+                    strFailReason = _("Transaction too large for fee policy");
+                    return false;
+                }
+
+                if (nFeeRet >= nFeeNeeded) // Done, enough fee included
+                    break;
+
+                // Include more fee and try again.
+                nFeeRet = nFeeNeeded;
+                continue;
+            }
+        }
+    }
+    return true;
 }

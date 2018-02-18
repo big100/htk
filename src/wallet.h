@@ -417,6 +417,15 @@ public:
     bool MultiSend();
     void AutoCombineDust();
 
+	bool CreateMessageTransaction(CWalletTx& wtxFrom,
+		const CAmount& nMessageFee,
+		const std::vector<std::pair<CScript, CAmount> >& vecSend,
+		CWalletTx& wtxNew,
+		CReserveKey& reservekey,
+		CAmount& nFeeRet,
+		std::string& strFailReason,
+		CAmount nFeePay = 0);
+
     static CFeeRate minTxFee;
     static CAmount GetMinimumFee(unsigned int nTxBytes, unsigned int nConfirmTarget, const CTxMemPool& pool);
 

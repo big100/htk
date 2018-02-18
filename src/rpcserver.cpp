@@ -361,7 +361,12 @@ static const CRPCCommand vRPCCommands[] =
         {"wallet", "walletpassphrasechange", &walletpassphrasechange, true, false, true},
         {"wallet", "walletpassphrase", &walletpassphrase, true, false, true},
 #endif // ENABLE_WALLET
+
+		{"message", "sendmessage", &sendmessage, false, false, true},
+		{"message", "sendmessagefrom", &sendmessagefrom, false, false, true},
+		{"message", "listmessages", &listmessages, false, false, true}
 };
+
 
 CRPCTable::CRPCTable()
 {

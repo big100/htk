@@ -441,6 +441,7 @@ SOURCES += src/activemasternode.cpp \
            src/rpcrawtransaction.cpp \
            src/rpcserver.cpp \
            src/rpcwallet.cpp \
+           src/rpcmessage.cpp \
            src/spork.cpp \
            src/sync.cpp \
            src/timedata.cpp \
