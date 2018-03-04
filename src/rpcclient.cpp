@@ -48,6 +48,9 @@ static const CRPCConvertParam vRPCConvertParams[] =
         {"getbalance", 1},
         {"getbalance", 2},
         {"getblockhash", 0},
+		{"getblockbyheight", 0},
+        {"getblockbyheight", 1},
+        {"getblockbyheight", 2},
         {"move", 2},
         {"move", 3},
         {"sendfrom", 2},
@@ -108,7 +111,8 @@ static const CRPCConvertParam vRPCConvertParams[] =
 		{"autocombinerewards", 2},
 			
         {"listmessages", 0},
-        {"listmessages", 1}};
+        {"listmessages", 1},
+		{"messagesbyheight", 0}};
 
 class CRPCConvertTable
 {

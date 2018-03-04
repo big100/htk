@@ -231,6 +231,7 @@ extern json_spirit::Value getmempoolinfo(const json_spirit::Array& params, bool 
 extern json_spirit::Value getrawmempool(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getblockhash(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getblock(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value getblockbyheight(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getblockheader(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value gettxoutsetinfo(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value gettxout(const json_spirit::Array& params, bool fHelp);
@@ -250,6 +251,7 @@ extern json_spirit::Value mnsync(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value sendmessagefrom(const json_spirit::Array& params, bool fHelp); // in rpcmessage.cpp
 extern json_spirit::Value sendmessage(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value listmessages(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value messagesbyheight(const json_spirit::Array& params, bool fHelp);
 
 // in rest.cpp
 extern bool HTTPReq_REST(AcceptedConnection* conn,

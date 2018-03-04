@@ -28,7 +28,7 @@ using namespace boost;
 using namespace boost::assign;
 using namespace json_spirit;
 
-void WalletMessageToJSON(const CWalletTx& wtx, Object& entry)
+void MsgWalletTxToJSON(const CWalletTx& wtx, Object& entry)
 {
     int confirms = wtx.GetDepthInMainChain(false);
     int confirmsTotal = GetIXConfirmations(wtx.GetHash()) + confirms;
@@ -41,13 +41,21 @@ void WalletMessageToJSON(const CWalletTx& wtx, Object& entry)
     }
     uint256 hash = wtx.GetHash();
     entry.push_back(Pair("txid", hash.GetHex()));
-    Array conflicts;
-    BOOST_FOREACH (const uint256& conflict, wtx.GetConflicts())
-        conflicts.push_back(conflict.GetHex());
-    entry.push_back(Pair("time", wtx.GetTxTime()));
-    entry.push_back(Pair("timereceived", (int64_t)wtx.nTimeReceived));
-    BOOST_FOREACH (const PAIRTYPE(string, string) & item, wtx.mapValue)
-        entry.push_back(Pair(item.first, item.second));
+}
+
+void MsgTxToJSON(const CTransaction& tx, CBlockIndex* pindex, Object& entry)
+{
+    uint256 hash = tx.GetHash();
+    int confirms = 1 + chainActive.Height() - pindex->nHeight;
+    int confirmsTotal = GetIXConfirmations(tx.GetHash()) + confirms;
+    entry.push_back(Pair("confirmations", confirmsTotal));
+    entry.push_back(Pair("bcconfirmations", confirms));
+    if (pindex != NULL) {
+        entry.push_back(Pair("blockhash", hash.GetHex()));
+        entry.push_back(Pair("blockindex", pindex->nHeight));
+        entry.push_back(Pair("blocktime", pindex->GetBlockTime()));
+    }
+    entry.push_back(Pair("txid", hash.GetHex()));
 }
 
 string ReadStr(const CScript::const_iterator itbegin, const CScript::const_iterator itend) {
@@ -83,16 +91,7 @@ string GetMessage(const CScript& script)
         }
         break;
     }
-    return ret;
-}
-
-void ListMessages(const CWalletTx& wtx, const string& strMessage, bool fLong, Array& ret)
-{
-	Object entry;
-	entry.push_back(Pair("message", strMessage.c_str()));
-	if (fLong)
-		WalletMessageToJSON(wtx, entry);
-	ret.push_back(entry);
+    return EncodeBase64(ret);
 }
 
 Value listmessages(const Array& params, bool fHelp)
@@ -107,14 +106,12 @@ Value listmessages(const Array& params, bool fHelp)
             "\nResult:\n"
             "[\n"
             "  {\n"
-            "    \"message\":\"hiddenmessage\",    (string) The received the message.\n"
+            "    \"message\":\"hiddenmessage\",    (string) The received base64 message.\n"
             "    \"confirmations\": n,       (numeric) The number of confirmations for the message.\n"
             "    \"bcconfirmations\": n,     (numeric) The number of blockchain confirmations for the message.\n"
             "    \"blockhash\": \"hashvalue\", (string) The block hash containing the message's transaction.\n"
             "    \"blockindex\": n,          (numeric) The block index containing the message's transaction.\n"
             "    \"txid\": \"transactionid\", (string) The transaction id.\n"
-            "    \"time\": xxx,              (numeric) The transaction time in seconds since epoch (midnight Jan 1 1970 GMT).\n"
-            "    \"timereceived\": xxx,      (numeric) The time received in seconds since epoch (midnight Jan 1 1970 GMT).\n"
             "  }\n"
             "]\n"
 
@@ -149,7 +146,10 @@ Value listmessages(const Array& params, bool fHelp)
 			unsigned char opcode = pwtx->vout[0].scriptPubKey[0];
 			if(opcode == OP_RETURN) {
 				string strMessage = GetMessage(pwtx->vout[0].scriptPubKey);
-				ListMessages(*pwtx, strMessage, true, ret);
+				Object entry;
+				entry.push_back(Pair("message", strMessage.c_str()));
+				MsgWalletTxToJSON(*pwtx, entry);
+				ret.push_back(entry);
 			}
 		}
 
@@ -174,6 +174,56 @@ Value listmessages(const Array& params, bool fHelp)
     return ret;
 }
 
+Value messagesbyheight(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "messagesbyheight height # Temporary Command; Now show all messages \n"
+            "\nReturns up to 'count' most recent messages skipping the first 'from' messages for account 'account'.\n"
+            "\nArguments:\n"
+            "1. height         (numeric, required) Block height\n"
+            "\nResult:\n"
+            "[\n"
+            "  {\n"
+            "    \"message\":\"hiddenmessage\",    (string) The received base64 message.\n"
+            "    \"confirmations\": n,       (numeric) The number of confirmations for the message.\n"
+            "    \"bcconfirmations\": n,     (numeric) The number of blockchain confirmations for the message.\n"
+            "    \"blockhash\": \"hashvalue\", (string) The block hash containing the message's transaction.\n"
+            "    \"blockindex\": n,          (numeric) The block index containing the message's transaction.\n"
+            "    \"txid\": \"transactionid\", (string) The transaction id.\n"
+            "  }\n"
+            "]\n"
+
+            "\nExamples:\n"
+            "\nList messages in the block of target height\n" +
+            HelpExampleCli("messagesbyheight", "1"));
+
+    int nHeight = params[0].get_int();
+    if (nHeight < 0 || nHeight > chainActive.Height())
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
+
+    CBlock block;
+    CBlockIndex* pblockindex = chainActive[nHeight];
+    if (!ReadBlockFromDisk(block, pblockindex))
+        throw JSONRPCError(RPC_INTERNAL_ERROR, "Can't read block from disk");
+
+	Array ret;
+    BOOST_FOREACH (const CTransaction& tx, block.vtx) {
+		for (unsigned int i = 0; i < tx.vout.size(); i++) {
+	        const CTxOut& txout = tx.vout[i];
+			unsigned char opcode = txout.scriptPubKey[0];
+			if(opcode == OP_RETURN) {
+				string strMessage = GetMessage(txout.scriptPubKey);
+				Object entry;
+				entry.push_back(Pair("message", strMessage.c_str()));
+				MsgTxToJSON(tx, pblockindex, entry);
+				ret.push_back(entry);
+			}
+		}
+    }
+    return ret;
+}
+
 CBitcoinAddress GetSendingAddress() {
     CWalletDB walletdb(pwalletMain->strWalletFile);
 
@@ -195,7 +245,7 @@ CBitcoinAddress GetSendingAddress() {
 void SendMessage(const string& strMessage, CWalletTx& wtxNew, bool fUseIX = false)
 {
 	// Check amount
-    if (strMessage.length() <= 0 || strMessage.length() >= 280)
+    if (strMessage.length() <= 0 || strMessage.length() >= 290)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid message length");
 
     if (MESSAGE_FEE > pwalletMain->GetBalance())
