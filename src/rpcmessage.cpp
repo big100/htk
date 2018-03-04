@@ -51,7 +51,7 @@ void MsgTxToJSON(const CTransaction& tx, CBlockIndex* pindex, Object& entry)
     entry.push_back(Pair("confirmations", confirmsTotal));
     entry.push_back(Pair("bcconfirmations", confirms));
     if (pindex != NULL) {
-        entry.push_back(Pair("blockhash", hash.GetHex()));
+        entry.push_back(Pair("blockhash", pindex->GetBlockHash().GetHex()));
         entry.push_back(Pair("blockindex", pindex->nHeight));
         entry.push_back(Pair("blocktime", pindex->GetBlockTime()));
     }
@@ -100,9 +100,9 @@ string GetMessage(const CScript& script, bool fBase64)
 
 Value listmessages(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() > 2)
+    if (fHelp || params.size() > 3)
         throw runtime_error(
-            "listmessages (count from)\n"
+            "listmessages (count from, base64)\n"
             "\nReturns up to 'count' most recent messages skipping the first 'from' messages for account 'account'.\n"
             "\nArguments:\n"
             "1. count          (numeric, optional, default=10) The number of messages to return\n"
