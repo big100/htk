@@ -195,7 +195,7 @@ CBitcoinAddress GetSendingAddress() {
 void SendMessage(const string& strMessage, CWalletTx& wtxNew, bool fUseIX = false)
 {
 	// Check amount
-    if (strMessage.length() <= 0 || strMessage.length() >= 256)
+    if (strMessage.length() <= 0 || strMessage.length() >= 280)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid message length");
 
     if (MESSAGE_FEE > pwalletMain->GetBalance())
