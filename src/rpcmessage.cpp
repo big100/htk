@@ -68,7 +68,7 @@ string ReadStr(const CScript::const_iterator itbegin, const CScript::const_itera
 	return rv;
 }
 
-string GetMessage(const CScript& script)
+string GetMessage(const CScript& script, bool fBase64)
 {
     string ret;
     CScript::const_iterator it = script.begin();
@@ -91,22 +91,27 @@ string GetMessage(const CScript& script)
         }
         break;
     }
-    return EncodeBase64(ret);
+	if(fBase64) {
+	    return EncodeBase64(ret);
+	} else {
+		return ret;
+	}
 }
 
 Value listmessages(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() > 2)
         throw runtime_error(
-            "listmessages (count from) # Temporary Command; Now show all messages \n"
+            "listmessages (count from)\n"
             "\nReturns up to 'count' most recent messages skipping the first 'from' messages for account 'account'.\n"
             "\nArguments:\n"
             "1. count          (numeric, optional, default=10) The number of messages to return\n"
             "2. from           (numeric, optional, default=0) The number of messages to skip\n"
+            "3. base64         (boolean, optional, default=false) Base64 encoded\n"
             "\nResult:\n"
             "[\n"
             "  {\n"
-            "    \"message\":\"hiddenmessage\",    (string) The received base64 message.\n"
+            "    \"message\":\"hiddenmessage\",    (string) The received message.\n"
             "    \"confirmations\": n,       (numeric) The number of confirmations for the message.\n"
             "    \"bcconfirmations\": n,     (numeric) The number of blockchain confirmations for the message.\n"
             "    \"blockhash\": \"hashvalue\", (string) The block hash containing the message's transaction.\n"
@@ -134,6 +139,10 @@ Value listmessages(const Array& params, bool fHelp)
     if (nFrom < 0)
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Negative from");
 
+    bool fBase64 = false;
+    if (params.size() > 2)
+        fBase64 = params[1].get_bool();
+
     Array ret;
 
     std::list<CAccountingEntry> acentries;
@@ -145,7 +154,7 @@ Value listmessages(const Array& params, bool fHelp)
         if (pwtx != 0) {
 			unsigned char opcode = pwtx->vout[0].scriptPubKey[0];
 			if(opcode == OP_RETURN) {
-				string strMessage = GetMessage(pwtx->vout[0].scriptPubKey);
+				string strMessage = GetMessage(pwtx->vout[0].scriptPubKey, fBase64);
 				Object entry;
 				entry.push_back(Pair("message", strMessage.c_str()));
 				MsgWalletTxToJSON(*pwtx, entry);
@@ -176,16 +185,16 @@ Value listmessages(const Array& params, bool fHelp)
 
 Value messagesbyheight(const Array& params, bool fHelp)
 {
-    if (fHelp || params.size() != 1)
+    if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
-            "messagesbyheight height # Temporary Command; Now show all messages \n"
-            "\nReturns up to 'count' most recent messages skipping the first 'from' messages for account 'account'.\n"
+            "messagesbyheight height\n"
             "\nArguments:\n"
             "1. height         (numeric, required) Block height\n"
+            "2. base64         (boolean, optional, default=false) Base64 encoded\n"
             "\nResult:\n"
             "[\n"
             "  {\n"
-            "    \"message\":\"hiddenmessage\",    (string) The received base64 message.\n"
+            "    \"message\":\"hiddenmessage\",    (string) The received message.\n"
             "    \"confirmations\": n,       (numeric) The number of confirmations for the message.\n"
             "    \"bcconfirmations\": n,     (numeric) The number of blockchain confirmations for the message.\n"
             "    \"blockhash\": \"hashvalue\", (string) The block hash containing the message's transaction.\n"
@@ -201,6 +210,10 @@ Value messagesbyheight(const Array& params, bool fHelp)
     int nHeight = params[0].get_int();
     if (nHeight < 0 || nHeight > chainActive.Height())
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Block height out of range");
+	
+	bool fBase64 = false;
+    if (params.size() > 1)
+        fBase64 = params[1].get_bool();
 
     CBlock block;
     CBlockIndex* pblockindex = chainActive[nHeight];
@@ -213,7 +226,7 @@ Value messagesbyheight(const Array& params, bool fHelp)
 	        const CTxOut& txout = tx.vout[i];
 			unsigned char opcode = txout.scriptPubKey[0];
 			if(opcode == OP_RETURN) {
-				string strMessage = GetMessage(txout.scriptPubKey);
+				string strMessage = GetMessage(txout.scriptPubKey, fBase64);
 				Object entry;
 				entry.push_back(Pair("message", strMessage.c_str()));
 				MsgTxToJSON(tx, pblockindex, entry);
@@ -222,6 +235,22 @@ Value messagesbyheight(const Array& params, bool fHelp)
 		}
     }
     return ret;
+}
+
+Value decodebase64(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 1)
+        throw runtime_error(
+            "decodebas64 \"message\" \n"
+            "\nReturns decoded base64 message.\n"
+            "\nArguments:\n"
+            "1. \"message\"    (string, required) Base64 encoded message\n"
+            "\nResult:\n"
+            "\"message\"\n"
+            "\nExamples:\n" +
+            HelpExampleCli("decodebas64", "\"VGVzdA==\""));
+
+    return DecodeBase64(params[0].get_str());
 }
 
 CBitcoinAddress GetSendingAddress() {

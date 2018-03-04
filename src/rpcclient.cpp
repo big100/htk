@@ -112,7 +112,9 @@ static const CRPCConvertParam vRPCConvertParams[] =
 			
         {"listmessages", 0},
         {"listmessages", 1},
-		{"messagesbyheight", 0}};
+		{"listmessages", 2},
+		{"messagesbyheight", 0},
+		{"messagesbyheight", 1}};
 
 class CRPCConvertTable
 {

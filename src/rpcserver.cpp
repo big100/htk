@@ -366,7 +366,8 @@ static const CRPCCommand vRPCCommands[] =
 		{"message", "sendmessage", &sendmessage, false, false, true},
 		{"message", "sendmessagefrom", &sendmessagefrom, false, false, true},
 		{"message", "listmessages", &listmessages, false, false, true},
-		{"message", "messagesbyheight", &messagesbyheight, false, false, true}
+		{"message", "messagesbyheight", &messagesbyheight, false, false, true},
+		{"message", "decodebase64", &decodebase64, false, false, true}
 };
 
 

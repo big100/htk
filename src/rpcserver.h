@@ -252,6 +252,7 @@ extern json_spirit::Value sendmessagefrom(const json_spirit::Array& params, bool
 extern json_spirit::Value sendmessage(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value listmessages(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value messagesbyheight(const json_spirit::Array& params, bool fHelp);
+extern json_spirit::Value decodebase64(const json_spirit::Array& params, bool fHelp);
 
 // in rest.cpp
 extern bool HTTPReq_REST(AcceptedConnection* conn,
