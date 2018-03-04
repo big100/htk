@@ -141,7 +141,7 @@ Value listmessages(const Array& params, bool fHelp)
 
     bool fBase64 = false;
     if (params.size() > 2)
-        fBase64 = params[1].get_bool();
+        fBase64 = params[2].get_bool();
 
     Array ret;
 
